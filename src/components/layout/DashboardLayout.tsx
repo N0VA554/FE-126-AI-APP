@@ -41,26 +41,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const items =
     displayUser?.role === "ADMIN"
       ? [
-          { href: "/admin", label: "Tổng quan", Icon: LayoutDashboard },
-          { href: "/admin/metrics", label: "AI Metrics", Icon: SlidersHorizontal },
-        ]
+        { href: "/admin", label: "Tổng quan", Icon: LayoutDashboard },
+        { href: "/admin/metrics", label: "AI Metrics", Icon: SlidersHorizontal },
+      ]
       : displayUser?.role === "LECTURER"
         ? [
-            { href: "/lecturer", label: "Tổng quan", Icon: LayoutDashboard },
-            { href: "/lecturer/schedule", label: "Lịch giảng dạy", Icon: CalendarCheck2 },
-            { href: "/lecturer/classes", label: "Lớp học của tôi", Icon: Users },
-          ]
+          { href: "/lecturer", label: "Tổng quan", Icon: LayoutDashboard },
+          { href: "/lecturer/schedule", label: "Lịch giảng dạy", Icon: CalendarCheck2 },
+          { href: "/lecturer/classes", label: "Lớp học của tôi", Icon: Users },
+        ]
         : [
-            { href: "/student", label: "Tổng quan", Icon: LayoutDashboard },
-            { href: "/student/calendar", label: "Thời khóa biểu", Icon: Calendar },
-            { href: "/student/exams", label: "Lịch thi", Icon: CalendarClock },
-            { href: "/student/grades", label: "Điểm số", Icon: GraduationCap },
-            { href: "/student/leave", label: "Nghỉ phép", Icon: FileText },
-            { href: "/student/plan", label: "Kế hoạch đăng ký", Icon: ListChecks },
-            { href: "/student/chatbot", label: "AI Assistant", Icon: MessageSquare },
-            { href: "/student/notifications", label: "Thông báo", Icon: Bell, badge: unread },
-            { href: "/student/profile", label: "Hồ sơ cá nhân", Icon: Users },
-          ];
+          { href: "/student", label: "Tổng quan", Icon: LayoutDashboard },
+          { href: "/student/notifications", label: "Thông báo", Icon: Bell, badge: unread },
+          { href: "/student/calendar", label: "Thời khóa biểu", Icon: Calendar },
+          { href: "/student/exams", label: "Lịch thi", Icon: CalendarClock },
+          { href: "/student/grades", label: "Điểm số", Icon: GraduationCap },
+          { href: "/student/leave", label: "Nghỉ phép", Icon: FileText },
+          { href: "/student/plan", label: "Kế hoạch đăng ký", Icon: ListChecks },
+          { href: "/student/chatbot", label: "AI Assistant", Icon: MessageSquare },
+
+          { href: "/student/profile", label: "Hồ sơ cá nhân", Icon: Users },
+        ];
 
   // Fetch unread count
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     })
       .then((r) => r.json())
       .then((json) => { if (json.success) setUnread(json.data?.unread ?? 0); })
-      .catch(() => {});
+      .catch(() => { });
   }, [isReady, user]);
 
   const handleLogout = () => {
