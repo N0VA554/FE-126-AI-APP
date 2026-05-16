@@ -1,0 +1,136 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.summaryCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  border: 1px solid #f1f5f9;
+}
+
+.summaryIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #f0fdf4;
+  color: #16a34a;
+  display: grid;
+  place-items: center;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+}
+
+.formPanel, .historyPanel {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid #eef1f7;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+.panelHeader h3 {
+  font-size: 1.25rem;
+  color: #003366;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.panelHeader p {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.formContent { margin-top: 1.5rem; display: grid; gap: 1.25rem; }
+
+.inputGroup label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.select, .textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.textarea { height: 100px; resize: none; }
+.select:focus, .textarea:focus { border-color: #C5A25D; box-shadow: 0 0 0 4px rgba(197, 162, 93, 0.1); }
+
+.dropzone {
+  border: 2px dashed #C5A25D;
+  background: #fffcf5;
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  transition: 0.3s;
+}
+
+.dropzone:hover { background: #fff9e6; }
+
+.hiddenInput { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.submitBtn {
+  background: #003366;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submitBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 51, 102, 0.2); }
+
+.historyList { margin-top: 1.5rem; display: grid; gap: 1rem; }
+
+.historyCard {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  border: 1px solid #f1f5f9;
+}
+
+.cardIndicator { width: 4px; border-radius: 10px; }
+.cardBody { flex: 1; }
+.cardTitle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+.cardMeta { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #94a3b8; }
+
+.badgePending { color: #C5A25D; background: rgba(197, 162, 93, 0.1); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
+.badgeApproved { color: #16a34a; background: #f0fdf4; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

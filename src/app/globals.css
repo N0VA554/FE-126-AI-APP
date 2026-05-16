@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* src/app/globals.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #c1c1c1;
+}

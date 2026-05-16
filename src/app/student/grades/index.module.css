@@ -1,0 +1,123 @@
+.wrapper { display: flex; flex-direction: column; gap: 1.5rem; animation: fadeIn 0.6s ease; }
+
+.statsRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+.statCard {
+  background: white; padding: 1.5rem; border-radius: 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
+
+.statInfo p { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+.statInfo h3 { font-size: 1.75rem; color: #003366; font-weight: 600; margin-top: 0.25rem; }
+
+.statIcon { width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; color: white; }
+.bgGold { background: linear-gradient(135deg, #C5A25D, #D4B57A); }
+.bgNavy { background: linear-gradient(135deg, #003366, #004d99); }
+.bgGreen { background: linear-gradient(135deg, #10b981, #34d399); }
+
+.contentGrid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+
+.tablePanel, .sidePanel {
+  background: white; border-radius: 24px; border: 1px solid #eef1f7;
+  padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+.panelHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.panelHeader h3 { font-size: 1.1rem; color: #003366; font-weight: 700; }
+
+.actions { display: flex; gap: 0.75rem; }
+.searchBox {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: #f1f5f9; padding: 0.5rem 1rem; border-radius: 10px;
+}
+.searchBox input { border: none; background: transparent; outline: none; font-size: 0.85rem; width: 150px; }
+
+.tableWrapper { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.table th { text-align: left; padding: 1rem; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; border-bottom: 2px solid #f8fafc; }
+.table td { padding: 1.25rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+
+.codeCell { font-family: monospace; font-weight: 700; color: #64748b; }
+.nameCell { font-weight: 700; color: #003366; }
+.boldCell { font-weight: 600; color: #003366; }
+.gradeBadge { background: #fffcf0; color: #C5A25D; padding: 0.25rem 0.75rem; border-radius: 8px; font-weight: 600; border: 1px solid #fdf2d0; }
+
+.goalCard { background: #f8fafc; padding: 1.25rem; border-radius: 16px; margin-bottom: 1.5rem; }
+.goalHeader { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.9rem; }
+.progressTrack { height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+.progressFill { height: 100%; background: #C5A25D; border-radius: 99px; }
+.goalHint { font-size: 0.8rem; color: #64748b; margin-top: 0.75rem; line-height: 1.4; }
+
+.listTitle { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 0.5px; }
+.historyItem {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.85rem 0; border-bottom: 1px solid #f1f5f9; cursor: pointer;
+}
+.semGpa { display: flex; align-items: center; gap: 0.5rem; color: #003366; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.loadingState, .errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background: white;
+  border-radius: 2rem;
+  color: #64748b;
+  gap: 1rem;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.printBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0f172a;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.printBtn:hover {
+  background: #1e293b;
+}
+
+.statusGreen {
+  background: #f0fdf4;
+  color: #166534;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.statusRed {
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Các class cũ của bạn giữ nguyên */

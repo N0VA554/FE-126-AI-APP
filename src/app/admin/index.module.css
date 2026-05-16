@@ -1,0 +1,61 @@
+.container { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Hero */
+.hero {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 1.5rem; border-radius: 24px; border: 1px solid #edf0f7;
+  background: linear-gradient(135deg, #ffffff 0%, #f6f8ff 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+.heroTitle { font-size: 1.6rem; font-weight: 700; color: #0b1a2b; letter-spacing: -0.5px; }
+.heroSubtitle { margin-top: 0.35rem; color: rgba(11, 26, 43, 0.65); font-size: 0.95rem; }
+.heroRight { text-align: right; }
+
+/* Dashboard Cards */
+.statsGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; }
+.statCard { background: white; padding: 1.5rem; border-radius: 20px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03); border: 1px solid #eef1f7; position: relative; overflow: hidden; }
+.statCard::before { content: ""; position: absolute; inset: 0; background: radial-gradient(1000px 120px at 10% 0%, rgba(0, 51, 102, 0.08), transparent 60%); pointer-events: none; }
+.statCardRed::before { background: radial-gradient(1000px 120px at 10% 0%, rgba(255, 77, 79, 0.14), transparent 60%); }
+.statCardGold::before { background: radial-gradient(1000px 120px at 10% 0%, rgba(197, 162, 93, 0.18), transparent 60%); }
+.statCardGreen::before { background: radial-gradient(1000px 120px at 10% 0%, rgba(63, 180, 109, 0.16), transparent 60%); }
+.statLabel { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; position: relative; }
+.statValue { font-size: 2.2rem; font-weight: 700; color: #0b1a2b; margin-top: 0.5rem; position: relative; }
+.statFoot { margin-top: 0.35rem; font-size: 0.85rem; color: rgba(11, 26, 43, 0.55); position: relative; display: flex; align-items: center; gap: 4px; }
+
+/* Panels */
+.insightsGrid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.5rem; }
+.panel { background: white; border-radius: 24px; border: 1px solid #eef1f7; padding: 1.5rem; }
+.panelHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.panelHeader h3 { font-size: 1rem; font-weight: 700; }
+
+/* Tables */
+.tableWrapper { background: white; border-radius: 24px; overflow: hidden; border: 1px solid #eef1f7; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+.table { width: 100%; border-collapse: collapse; }
+.table th { padding: 1rem 1.5rem; text-align: left; font-size: 0.75rem; color: #94a3b8; background: #fafcff; }
+.table td { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+
+/* Buttons */
+.primaryBtn, .secondaryBtn, .actionBtnGhost { 
+  display: flex; align-items: center; gap: 8px; border-radius: 12px; 
+  padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+}
+.primaryBtn { background: #003366; color: white; border: none; }
+.secondaryBtn { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; margin: 0.6rem 1rem; }
+.actionBtnGhost { border: 1px solid #e2e8f0; background: white; color: #64748b; }
+.primaryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Modal */
+.modalBackdrop { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); }
+.modalCard { width: min(850px, 95vw); max-height: 90vh; background: white; border-radius: 24px; padding: 2rem; overflow-y: auto; }
+
+/* Data Visualization */
+.docGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.docCard { border: 1px solid #f1f5f9; padding: 1.25rem; border-radius: 20px; transition: 0.2s; position: relative; }
+.docCard:hover { border-color: #003366; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+.chunkContainer { display: flex; flex-direction: column; gap: 12px; margin: 1rem 0; }
+.chunkItem { background: #f8fafc; border: 1px solid #f1f5f9; padding: 1rem; border-radius: 12px; }
+.chunkRef { font-size: 0.7rem; font-weight: 600; background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; }
+
+/* Badges */
+.badgeRed { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+.badgeGreen { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-weight: 700; }

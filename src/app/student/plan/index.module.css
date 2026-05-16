@@ -1,0 +1,99 @@
+.wrapper { display: flex; flex-direction: column; gap: 1.5rem }
+
+/* Header & Mode Selector */
+.pageHeader { display: flex; justify-content: space-between; align-items: center; background: white; padding: 1.5rem 2rem; border-radius: 1.5rem; border: 1px solid #e2e8f0; }
+.modeGroup { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px; }
+.modeBtn { padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; color: #64748b; background: transparent; }
+.modeActive { background: white; color: #003366; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+/* Stats Row */
+.statsRow { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.statCard { background: white; padding: 1.25rem; border-radius: 1.25rem; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.statLabel { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+.statValue { font-size: 1.75rem; font-weight: 600; color: #0b1a2b; }
+.statIcon { width: 3rem; height: 3rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; }
+
+/* Colors */
+.bgNavy { background: #eff6ff; color: #1e40af; }
+.bgGold { background: #fffbeb; color: #b45309; }
+.bgEmerald { background: #ecfdf5; color: #065f46; }
+
+/* Content Grid */
+.contentGrid { display: grid; grid-template-columns: 700px 550px; gap: 1.5rem; }
+.panel { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; overflow: hidden; }
+.panelHeader { padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9; background: #fcfdfe; display: flex; justify-content: space-between; }
+
+/* Course List */
+.courseItem { display: flex; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+.courseItem:hover { background: #fafafa; }
+.courseCode { font-family: monospace; font-weight: 700; color: #003366; font-size: 0.85rem; }
+.priorityBadge { font-size: 10px; background: #fefce8; color: #854d0e; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+
+/* Sidebar Advice */
+.adviceBox { background: #f8fafc; padding: 1rem; border-radius: 1rem; border-left: 4px solid #003366; margin-bottom: 1rem; }
+.timeSlot { background: #f1f5f9; padding: 0.75rem; border-radius: 0.75rem; margin-bottom: 0.5rem; font-size: 0.8rem; }
+
+/* Buttons */
+.adviseBtn { background: #003366; color: white; padding: 0.75rem 1.5rem; border-radius: 1rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(0, 51, 102, 0.2); }
+.submitBtn { width: 100%; margin-top: 1rem; padding: 1rem; background: #0b1a2b; color: white; border-radius: 1rem; border: none; font-weight: 700; cursor: pointer; }
+.secondaryBtn { background: #e2e8f0; color: #0f172a; border: none; border-radius: 0.85rem; cursor: pointer; font-weight: 700; }
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modalCard {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.18);
+  border: 1px solid #e2e8f0;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modalTitle { margin: 0; font-size: 1.15rem; font-weight: 700; color: #0f172a; }
+.modalSubtitle { margin: 0.25rem 0 0; color: #64748b; font-size: 0.85rem; }
+
+.modalBody { padding: 1.5rem; display: grid; gap: 1rem; color: #334155; font-size: 0.95rem; }
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #94a3b8;
+  gap: 1rem;
+}
+
+.emptyState p {
+  font-size: 0.9rem;
+  max-width: 250px;
+  line-height: 1.6;
+}
+
+.sectionLabel {
+  font-size: 0.7rem; 
+  font-weight: 700; 
+  color: #94a3b8; 
+  text-transform: uppercase; 
+  margin-bottom: 0.75rem;
+}

@@ -1,0 +1,282 @@
+.container { display: flex; flex-direction: column; gap: 1.5rem; animation: fadeIn 0.5s ease; }
+
+/* Header */
+.calendarHeader {
+  display: flex; justify-content: space-between; align-items: center;
+  background: white; padding: 1.25rem 2rem; border-radius: 24px;
+  border: 1px solid #eef1f7; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+.headerLeft { display: flex; align-items: center; gap: 2rem; }
+.currentDate { font-size: 1.4rem; font-weight: 600; color: #003366; }
+.viewSwitch { display: flex; background: #f1f5f9; padding: 0.35rem; border-radius: 14px; }
+.viewSwitch button {
+  padding: 0.6rem 1.2rem; border: none; background: transparent;
+  border-radius: 10px; cursor: pointer; font-weight: 700; color: #64748b;
+}
+.viewSwitch button.activeView { background: white; color: #003366; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+.syncBtn {
+  background: #003366; color: white; border: none; padding: 0.75rem 1.25rem;
+  border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+
+/* Week View */
+.weekGrid { display: grid; grid-template-columns: repeat(7, 1fr); background: #eef1f7; border-radius: 24px; overflow: hidden; gap: 1px; }
+.dayColumn { background: white; min-height: 650px; }
+
+.dayHeader { padding: 1.5rem 1rem; text-align: center; }
+.dayNumber { font-size: 1.6rem; font-weight: 600; color: #003366; display: block; }
+
+.eventSlot { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+.eventCard { padding: 1rem; border-radius: 14px; border-left: 4px solid #C5A25D; background: #fffcf0; cursor: pointer; transition: 0.3s; }
+.eventCard:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+.eventTitle { font-weight: 600; color: #003366; font-size: 0.9rem; }
+
+/* Month View Nâng cấp */
+.monthGrid { display: grid; grid-template-columns: repeat(7, 1fr); background: #eef1f7; border-radius: 24px; overflow: hidden; gap: 1px; }
+.monthDayHeader { background: #f8fafc; padding: 1rem; text-align: center; font-weight: 600; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; }
+.monthCell { background: white; height: 140px; padding: 0.6rem; display: flex; flex-direction: column; gap: 0.5rem; transition: 0.2s; }
+.monthCell:hover { background: #fcfcfc; }
+.monthDateNum { font-weight: 600; color: #64748b; font-size: 1rem; }
+
+.monthEventList { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+.monthEventPill {
+  background: #fffcf0; color: #003366; font-size: 0.7rem; padding: 4px 8px;
+  border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; font-weight: 600; border-left: 3px solid #C5A25D;
+  transition: 0.3s;
+}
+.monthEventPill:hover { background: #C5A25D; color: white; }
+
+/* Modal "Đẹp hơn - Đầy đủ hơn" */
+.modalOverlay { position: fixed; inset: 0; background: rgba(0, 26, 51, 0.7); backdrop-filter: blur(10px); display: grid; place-items: center; z-index: 2000; animation: fadeIn 0.3s; }
+.modalContent { background: white; width: 90%; max-width: 500px; border-radius: 30px; padding: 2.5rem; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.3); }
+.closeBtn { position: absolute; top: 1.5rem; right: 1.5rem; border: none; background: #f1f5f9; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
+
+.typeTag { background: #003366; color: white; padding: 0.4rem 1rem; border-radius: 8px; display: inline-block; font-size: 0.75rem; font-weight: 600; margin-bottom: 1.25rem; }
+.modalTitle { font-size: 2rem; font-weight: 600; color: #003366; line-height: 1.1; }
+.modalSubtitle { color: #C5A25D; font-weight: 700; margin-top: 0.5rem; }
+
+.modalBody { margin: 2rem 0; display: grid; gap: 1.25rem; }
+.infoRow { display: flex; align-items: center; gap: 1rem; }
+.iconBox { width: 40px; height: 40px; background: #f8fafc; color: #C5A25D; border-radius: 10px; display: grid; place-items: center; }
+.infoRow label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+.infoRow p { font-weight: 700; color: #003366; font-size: 1rem; }
+
+.descriptionBox { background: #f8fafc; padding: 1.25rem; border-radius: 16px; }
+.descTitle { display: flex; align-items: center; gap: 6px; font-weight: 600; color: #003366; font-size: 0.85rem; margin-bottom: 0.5rem; }
+.descriptionBox p { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+
+.modalFooter { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.primaryBtn { background: #003366; color: white; border: none; padding: 0.9rem; border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.secondaryBtn { background: #f1f5f9; color: #003366; border: none; padding: 0.9rem; border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* --- DAY VIEW STYLES --- */
+.dayViewWrapper {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 32px;
+  border: 1px solid #eef1f7;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  animation: slideUp 0.4s ease-out;
+}
+
+.dayHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dayInfo h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #003366;
+}
+
+.dayInfo p {
+  color: #64748b;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+.todayLabel {
+  background: #C5A25D;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(197, 162, 93, 0.3);
+}
+.todayCol {
+  background: white !important;
+  outline: 2px solid #C5A25D;
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+
+.todayCell {
+  background: white;
+  outline: 2px solid #C5A25D;
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+
+.todayCircle {
+  background: transparent;
+  color: #C5A25D;
+  border: 2px solid #C5A25D;
+  border-radius: 10px;
+}
+/* Timeline Logic */
+.timelineContainer {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1rem;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 2rem;
+  cursor: pointer;
+}
+
+.timeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.startTime {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #003366;
+  margin-bottom: 0.5rem;
+}
+
+.timeLineConnector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.timeDot {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border: 3px solid #C5A25D;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.line {
+  width: 2px;
+  background: #e2e8f0;
+  flex: 1;
+  margin: 4px 0;
+}
+
+/* Detailed Card in Day View */
+.detailedCard {
+  flex: 1;
+  background: #f8fafc;
+  padding: 1.75rem;
+  border-radius: 24px;
+  margin-bottom: 2rem;
+  transition: 0.3s;
+  border: 1px solid transparent;
+}
+
+.detailedCard:hover {
+  background: white;
+  border-color: #C5A25D;
+  transform: translateX(10px);
+  box-shadow: 0 15px 35px rgba(0, 51, 102, 0.06);
+}
+
+.detailedCard.warning {
+  border-left: 6px solid #ef4444;
+  background: #fffafa;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.typeBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #003366;
+  background: rgba(0, 51, 102, 0.08);
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+}
+
+.duration {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.courseTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #003366;
+  margin-bottom: 1rem;
+}
+
+.cardMeta {
+  display: flex;
+  gap: 2rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warningAlert {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 5rem 0;
+  color: #94a3b8;
+}
+
+.emptyState p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,150 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: #0f172a;
+}
+
+/* Header Stats Section */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.statCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.statInfo p {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.statInfo h3 {
+  font-size: 1.875rem;
+  font-weight: 600;
+}
+
+.statIcon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bgGold { background-color: #fefce8; color: #a16207; }
+.bgNavy { background-color: #eff6ff; color: #1e40af; }
+.bgEmerald { background-color: #ecfdf5; color: #065f46; }
+
+/* Main Content Grid */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .contentGrid { grid-template-columns: 1fr; }
+}
+
+/* Exam List Panel */
+.examPanel {
+  background: white;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.panelHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panelHeader h3 { font-weight: 600; font-size: 1.125rem; }
+
+.examList { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+
+.examItem {
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.examItem:hover { border-color: #cbd5e1; background: #fafafa; }
+
+.examMainInfo { display: flex; gap: 1rem; align-items: center; }
+
+.statusIndicator {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pass { background: #f0fdf4; color: #166534; }
+.fail { background: #fef2f2; color: #991b1b; }
+
+.courseCode { font-family: monospace; font-weight: 700; font-size: 0.875rem; color: #003366; }
+.courseName { font-weight: 600; font-size: 1rem; margin-top: 0.25rem; }
+.examDetails { margin-top: 0.5rem; font-size: 0.875rem; color: #64748b; display: flex; gap: 1rem; }
+
+/* Side Panel */
+.sidePanel { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.infoCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.infoCard h4 { font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+.ruleItem { font-size: 0.875rem; color: #475569; margin-bottom: 0.75rem; display: flex; gap: 0.5rem; }
+
+.admitBtn {
+  background: #0f172a;
+  color: white;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.admitBtn:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+.alert {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
