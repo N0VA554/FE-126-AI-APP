@@ -1,3 +1,5 @@
+"use client";
+
 export type ApiOk<T> = { success: true; data: T };
 export type ApiFail = { success: false; message?: string; error?: unknown };
 
@@ -58,11 +60,20 @@ function clearStoredAuth() {
   }
 }
 
+// --- ĐỒNG BỘ LOGIC ĐỌC TRƯỜNG LỖI TỪ SERVER TẠI ĐÂY ---
 function handleApiFailure(method: string, res: Response, parsed: unknown): never {
   if (res.status === 401) clearStoredAuth();
+  
+  const parsedBody = parsed as { message?: string; error?: unknown } | undefined;
+  
+  // Kiểm tra nếu error là một chuỗi văn bản từ backend gửi về (như thông báo đợt đăng ký tín chỉ)
+  const errorMsg = typeof parsedBody?.error === "string" ? parsedBody.error : undefined;
+
   const msg =
-    (parsed as { message?: string } | undefined)?.message ||
+    errorMsg ||
+    parsedBody?.message ||
     `${method} failed (${res.status})`;
+
   throw new ApiError(msg, res.status, parsed);
 }
 
@@ -125,4 +136,3 @@ export async function deleteJson<TResponse>(
   if (!res.ok) handleApiFailure("DELETE", res, parsed);
   return parsed as TResponse;
 }
-

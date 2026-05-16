@@ -27,11 +27,20 @@ export default function EnrollmentPlannerPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [registerLoading, setRegisterLoading] = useState(false);
-  const [registerMessage, setRegisterMessage] = useState<string | null>(null);
-  const [registerError, setRegisterError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [hasLoadedAdvice, setHasLoadedAdvice] = useState(false);
+
+  // --- STATE TOAST MESSAGE CỦA BẠN ---
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Tự động đóng toast sau 4 giây
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  };
 
   // --- LOGIC ADVISOR ---
   const getAIAdvice = async (targetMode: Mode, isAutoLoad = false) => {
@@ -41,11 +50,7 @@ export default function EnrollmentPlannerPage() {
       const res = await fetchRegistrationAdvisor(studentId, targetMode);
       setData(res);
       setBaseStats(res);
-
-      // ĐÃ BỎ: Logic tự động tick môn (setSelectedIds)
-      // Mỗi khi lấy tư vấn mới, chúng ta reset danh sách đã chọn về rỗng
       setSelectedIds([]); 
-      
     } catch (error) {
       console.error("Lỗi khi lấy tư vấn:", error);
     } finally {
@@ -81,7 +86,6 @@ export default function EnrollmentPlannerPage() {
   const handleModeChange = (newMode: Mode) => {
     if (newMode !== mode) {
       setMode(newMode);
-      // Reset data và selection khi đổi mode để đảm bảo tính minh bạch
       setData(null);
       setSelectedIds([]);
       getAIAdvice(newMode);
@@ -103,23 +107,21 @@ export default function EnrollmentPlannerPage() {
     }
   };
 
+  // --- LOGIC ĐĂNG KÝ MÔN HỌC ---
   const handleRegisterOneCourse = async () => {
-    setRegisterMessage(null);
-    setRegisterError(null);
-
     if (!data) {
-      setRegisterError("Không có dữ liệu môn học.");
+      showToast("Không có dữ liệu môn học.", "error");
       return;
     }
     if (selectedIds.length !== 1) {
-      setRegisterError("Vui lòng chọn đúng 1 môn để đăng ký.");
+      showToast("Vui lòng chọn đúng 1 môn để đăng ký.", "error");
       return;
     }
 
     const selectedId = selectedIds[0];
     const course = data.suggested_courses.find((c: any) => c.course_id === selectedId);
     if (!course) {
-      setRegisterError("Môn được chọn không hợp lệ.");
+      showToast("Môn được chọn không hợp lệ.", "error");
       return;
     }
 
@@ -127,7 +129,7 @@ export default function EnrollmentPlannerPage() {
     const sectionId = (course.suggested_section_id || course.section_id || course.schedule_id?.toString() || "").trim();
 
     if (!courseId) {
-      setRegisterError("Không tìm thấy mã môn để đăng ký.");
+      showToast("Không tìm thấy mã môn để đăng ký.", "error");
       return;
     }
 
@@ -135,15 +137,18 @@ export default function EnrollmentPlannerPage() {
     try {
       const studentId = user?.username || "string";
       const result = await registerCourse(studentId, courseId, sectionId || undefined);
-      setRegisterMessage(result.message || "Đăng ký môn học thành công.");
-      setSelectedIds([]);
-      fetchTimeline();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setRegisterError(error.message);
+      
+      if (result && result.success === false) {
+        showToast(result.error || "Đăng ký không thành công.", "error");
       } else {
-        setRegisterError("Lỗi khi đăng ký môn học.");
+        showToast(result.message || "Đăng ký môn học thành công.", "success");
+        setSelectedIds([]);
+        fetchTimeline();
       }
+    } catch (error: any) {
+      console.error("Lỗi khi gọi API đăng ký:", error);
+      const serverError = error?.body?.error || error?.message || "Lỗi hệ thống khi đăng ký môn học.";
+      showToast(serverError, "error");
     } finally {
       setRegisterLoading(false);
     }
@@ -169,7 +174,6 @@ export default function EnrollmentPlannerPage() {
     return data.timetable.filter((slot: any) => selectedIds.includes(slot.course_id));
   }, [selectedIds, data]);
 
-  // Kiểm tra lý do không thể đăng ký
   const getUnscheduledReason = (courseId: number) => {
     return unscheduledCourseMap.get(courseId) ?? null;
   };
@@ -289,10 +293,6 @@ export default function EnrollmentPlannerPage() {
 
       {/* 3. Stats Row */}
       <section className={styles.statsRow}>
-        {/* <div className={styles.statCard}>
-          <div className={styles.statInfo}><p className={styles.statLabel}>GPA Tích lũy</p><h3 className={styles.statValue}>{baseStats?.gpa_10 ?? "--"}</h3></div>
-          <div className={`${styles.statIcon} ${styles.bgGold}`}><Target size={24} /></div>
-        </div> */}
         <div className={styles.statCard}>
           <div className={styles.statInfo}>
             <p className={styles.statLabel}>Tín chỉ đăng ký</p>
@@ -341,6 +341,7 @@ export default function EnrollmentPlannerPage() {
                   </div>
                 </div>
 
+                {/* NÚT ĐĂNG KÝ (ĐÃ LOẠI BỎ TEXT HIỂN THỊ LỖI PHÍA DƯỚI) */}
                 <button
                   className={styles.submitBtn}
                   disabled={
@@ -354,12 +355,6 @@ export default function EnrollmentPlannerPage() {
                   {registerLoading ? <Loader2 className="animate-spin" size={18} /> : <Send size={16} style={{ marginRight: 8, display: 'inline' }} />}
                   Đăng ký 1 môn
                 </button>
-                {registerMessage && (
-                  <div style={{ marginTop: '0.75rem', color: '#166534', fontSize: '0.85rem' }}>{registerMessage}</div>
-                )}
-                {registerError && (
-                  <div style={{ marginTop: '0.75rem', color: '#b91c1c', fontSize: '0.85rem' }}>{registerError}</div>
-                )}
               </>
             ) : (
               <div className={styles.emptyState}><BookOpen size={24} color="#94a3b8" /><p>Chọn chế độ và nhấn cập nhật tư vấn.</p></div>
@@ -386,7 +381,7 @@ export default function EnrollmentPlannerPage() {
                   onClick={() => handleModeChange(m)}
                   style={{ flex: 1, textAlign: 'center' }}
                 >
-                  {m === "normal" ? "Chế độ Chuẩn" : m === "fast_track" ? "Học vượt" : "Đúng hạn"}
+                  {m === "normal" ? "Chế độ Chuẩn" : m === m ? "Học vượt" : "Đúng hạn"}
                 </button>
               ))}
             </div>
@@ -473,8 +468,6 @@ export default function EnrollmentPlannerPage() {
                     <div><strong>Tên môn:</strong> {selectedCourse.course_name}</div>
                     <div><strong>Mã môn:</strong> {selectedCourse.course_code}</div>
                     <div><strong>Tín chỉ:</strong> {selectedCourse.credits ?? "--"}</div>
-                    {/* <div><strong>Ưu tiên:</strong> {selectedCourse.priority ?? "--"}</div>
-                    <div><strong>Ghi chú:</strong> {selectedCourse.reason || "Không có"}</div> */}
                     {selectedCourse.description && (
                       <div><strong>Mô tả:</strong> {selectedCourse.description}</div>
                     )}
@@ -485,6 +478,40 @@ export default function EnrollmentPlannerPage() {
           )}
         </main>
       </div>
+
+      {/* --- UI TOAST MESSAGE ĐÃ ĐỔI LÊN TRÊN GÓC TRÁI (TOP-LEFT) --- */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          top: '24px',          // Đổi từ bottom lên top
+          right: '24px',         // Đổi từ right sang left
+          zIndex: 9999,
+          background: toast.type === 'success' ? '#f0fdf4' : '#fef2f2',
+          color: toast.type === 'success' ? '#166534' : '#991b1b',
+          border: `1px solid ${toast.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+          padding: '12px 20px',
+          borderRadius: '12px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          maxWidth: '420px',
+          transition: 'all 0.2s ease-in-out'
+        }}>
+          {toast.type === 'success' ? (
+            <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
+          ) : (
+            <AlertTriangle size={18} style={{ flexShrink: 0, color: '#dc2626' }} />
+          )}
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, lineHeight: 1.4 }}>{toast.message}</span>
+          <button 
+            onClick={() => setToast(null)} 
+            style={{ background: 'none', border: 'none', marginLeft: 'auto', padding: '4px', cursor: 'pointer', color: 'inherit', opacity: 0.6 }}
+          >
+            <XCircle size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

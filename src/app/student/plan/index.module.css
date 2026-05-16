@@ -19,7 +19,11 @@
 .bgEmerald { background: #ecfdf5; color: #065f46; }
 
 /* Content Grid */
-.contentGrid { display: grid; grid-template-columns: 700px 550px; gap: 1.5rem; }
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
 .panel { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; overflow: hidden; }
 .panelHeader { padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9; background: #fcfdfe; display: flex; justify-content: space-between; }
 

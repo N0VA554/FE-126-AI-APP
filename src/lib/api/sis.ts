@@ -178,7 +178,7 @@ export interface RegistrationAdvisorPayload {
   };
   suggested_courses: SuggestedCourse[];
   timetable: TimetableItem[];
-  enrolled_courses: any[];   // môn đang học kỳ hiện tại (status=enrolled)
+  enrolled_courses: any[];   
   debt_courses: any[];
   unscheduled_courses: any[];
   warnings: string[];
@@ -224,11 +224,7 @@ export async function submitEnrollment(courseIds: Array<number | string>): Promi
   );
   return res.data;
 }
-/**
- * Lấy danh sách môn học đề xuất từ Cố vấn đăng ký AI
- * @param studentId Mã sinh viên
- * @param mode Chế độ đăng ký: normal | fast_track | on_time
- */
+
 export async function fetchRegistrationAdvisor(
   studentId: string,
   mode: "normal" | "fast_track" | "on_time" = "normal"
@@ -250,9 +246,11 @@ export async function refreshRegistrationAdvisor(
   return res.data;
 }
 
+// --- ĐÃ ĐƯỢC CẬP NHẬT TRƯỜNG ERROR VÀ MESSAGE ĐỂ FIX TS ---
 export interface RegistrationResult {
   success: boolean;
-  message: string;
+  message?: string;
+  error?: string; // 👈 Thêm dòng này để giải quyết lỗi không tồn tại thuộc tính 'error'
   registration?: unknown;
   total_credits_after?: number;
   credit_limit?: unknown;
