@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import styles from "./index.module.css";
 import {
-  Sparkles, Target, BookOpen, GraduationCap,
+  Sparkles, BookOpen, GraduationCap,
   Send, Loader2, AlertTriangle, CheckCircle2, 
   MousePointerClick, XCircle, Lock, Clock, CalendarX
 } from "lucide-react";
@@ -16,34 +16,106 @@ import {
 import { useAuth } from "@/src/context/AuthContext";
 import { PUBLIC_API_BASE_URL } from "@/src/lib/api/config";
 
+// --- TYPES & INTERFACES DEFINITIONS ---
 type Mode = "normal" | "fast_track" | "on_time";
+type TimelineStatus = "done" | "doing" | "fail" | "blocked" | "yet";
+
+interface TimetableSlot {
+  course_id: number;
+  course_name: string;
+  day_of_week: number | string;
+  start_time: string;
+  end_time: string;
+  room_number?: string;
+}
+
+interface SuggestedCourse {
+  course_id: number;
+  course_code: string;
+  course_name: string;
+  credits: number;
+  priority: number;
+  reason: string;
+  suggested_section_id?: string;
+  section_id?: string;
+  schedule_id?: number | string;
+}
+
+interface UnscheduledCourse {
+  course?: {
+    course_id: number;
+  };
+  reason: string;
+}
+
+interface PlanCourse {
+  course_id: number;
+  course_code: string;
+  course_name?: string;
+  semester_index: number;
+  was_retaken?: boolean;
+  is_retaking?: boolean;
+  credits?: number;
+  description?: string;
+}
+
+interface PlanData {
+  completed?: PlanCourse[];
+  enrolled?: PlanCourse[];
+  failed?: PlanCourse[];
+  blocked?: PlanCourse[];
+  recommended?: PlanCourse[];
+  not_taken?: PlanCourse[];
+  student: {
+    current_semester: number;
+    academic_status?: string;
+  };
+  target_semester?: number;
+}
+
+interface TypedTimelineCourse extends PlanCourse {
+  status: TimelineStatus;
+}
+
+interface TimelineGroup {
+  semester: string;
+  courses: TypedTimelineCourse[];
+  isCurrent: boolean;
+}
+
+interface SelectedCourseDetail {
+  course_id: number;
+  course_code: string;
+  course_name?: string;
+  credits?: number;
+  description?: string;
+}
 
 export default function EnrollmentPlannerPage() {
   const { user } = useAuth();
   const [data, setData] = useState<RegistrationAdvisorPayload | null>(null);
   const [baseStats, setBaseStats] = useState<RegistrationAdvisorPayload | null>(null);
-  const [planData, setPlanData] = useState<any | null>(null);
+  const [planData, setPlanData] = useState<PlanData | null>(null);
   const [mode, setMode] = useState<Mode>("normal");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<SelectedCourseDetail | null>(null);
   const [registerLoading, setRegisterLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [hasLoadedAdvice, setHasLoadedAdvice] = useState(false);
 
-  // --- STATE TOAST MESSAGE CỦA BẠN ---
+  // --- STATE TOAST MESSAGE ---
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // Tự động đóng toast sau 4 giây
-  const showToast = (message: string, type: "success" | "error") => {
+  const showToast = useCallback((message: string, type: "success" | "error") => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
     }, 4000);
-  };
+  }, []);
 
   // --- LOGIC ADVISOR ---
-  const getAIAdvice = async (targetMode: Mode, isAutoLoad = false) => {
+  const getAIAdvice = useCallback(async (targetMode: Mode, isAutoLoad = false) => {
     if (!isAutoLoad) setLoading(true);
     try {
       const studentId = user?.username || "string";
@@ -56,10 +128,10 @@ export default function EnrollmentPlannerPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.username]);
 
   // --- LOGIC TIMELINE & MASTER DATA ---
-  const fetchTimeline = async () => {
+  const fetchTimeline = useCallback(async () => {
     try {
       const token = localStorage.getItem("auth_token");
       const res = await fetch(`${PUBLIC_API_BASE_URL}student/enrollment/plan/me`, {
@@ -72,7 +144,7 @@ export default function EnrollmentPlannerPage() {
     } finally {
       setIsInitialLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (user?.username) {
@@ -81,7 +153,7 @@ export default function EnrollmentPlannerPage() {
         getAIAdvice(mode, true).then(() => setHasLoadedAdvice(true));
       }
     }
-  }, [user, mode, hasLoadedAdvice]);
+  }, [user?.username, mode, hasLoadedAdvice, fetchTimeline, getAIAdvice]);
 
   const handleModeChange = (newMode: Mode) => {
     if (newMode !== mode) {
@@ -119,7 +191,8 @@ export default function EnrollmentPlannerPage() {
     }
 
     const selectedId = selectedIds[0];
-    const course = data.suggested_courses.find((c: any) => c.course_id === selectedId);
+    const suggestedCourses = (data.suggested_courses as SuggestedCourse[]) || [];
+    const course = suggestedCourses.find(c => c.course_id === selectedId);
     if (!course) {
       showToast("Môn được chọn không hợp lệ.", "error");
       return;
@@ -154,14 +227,16 @@ export default function EnrollmentPlannerPage() {
     }
   };
 
+  // --- DATA SAFE CASTING VIA USEMEMO ---
   const scheduledCourseIds = useMemo(() => {
-    if (!data?.timetable) return new Set<number>();
-    return new Set<number>(data.timetable.map((slot: any) => slot.course_id));
+    const timetable = (data?.timetable as TimetableSlot[]) || [];
+    return new Set<number>(timetable.map(slot => slot.course_id));
   }, [data]);
 
   const unscheduledCourseMap = useMemo(() => {
     const map = new Map<number, string>();
-    data?.unscheduled_courses?.forEach((item: any) => {
+    const unscheduled = (data?.unscheduled_courses as UnscheduledCourse[]) || [];
+    unscheduled.forEach(item => {
       if (item?.course?.course_id) {
         map.set(item.course.course_id, item.reason);
       }
@@ -170,8 +245,8 @@ export default function EnrollmentPlannerPage() {
   }, [data]);
 
   const filteredTimetable = useMemo(() => {
-    if (!data?.timetable) return [];
-    return data.timetable.filter((slot: any) => selectedIds.includes(slot.course_id));
+    const timetable = (data?.timetable as TimetableSlot[]) || [];
+    return timetable.filter(slot => selectedIds.includes(slot.course_id));
   }, [selectedIds, data]);
 
   const getUnscheduledReason = (courseId: number) => {
@@ -180,35 +255,47 @@ export default function EnrollmentPlannerPage() {
 
   const currentCredits = useMemo(() => {
     if (!data) return 0;
-    return data.suggested_courses
+    const suggestedCourses = (data.suggested_courses as SuggestedCourse[]) || [];
+    return suggestedCourses
       .filter(c => selectedIds.includes(c.course_id))
       .reduce((sum, c) => sum + c.credits, 0);
   }, [selectedIds, data]);
 
-  const timelineGroups = useMemo(() => {
+  const timelineGroups = useMemo<TimelineGroup[]>(() => {
     if (!planData) return [];
-    const all = [
-      ...(planData.completed || []).map((c: any) => ({ ...c, status: "done" })),
-      ...(planData.enrolled || []).map((c: any) => ({ ...c, status: "doing" })),
-      ...(planData.failed || []).map((c: any) => ({ ...c, status: "fail" })),
-      ...(planData.blocked || []).map((c: any) => ({ ...c, status: "blocked" })),
-      ...(planData.recommended || []).map((c: any) => ({ ...c, status: "yet" })),
-      ...(planData.not_taken || []).map((c: any) => ({ ...c, status: "yet" })),
+    
+    const all: TypedTimelineCourse[] = [
+      ...(planData.completed || []).map(c => ({ ...c, status: "done" as const })),
+      ...(planData.enrolled || []).map(c => ({ ...c, status: "doing" as const })),
+      ...(planData.failed || []).map(c => ({ ...c, status: "fail" as const })),
+      ...(planData.blocked || []).map(c => ({ ...c, status: "blocked" as const })),
+      ...(planData.recommended || []).map(c => ({ ...c, status: "yet" as const })),
+      ...(planData.not_taken || []).map(c => ({ ...c, status: "yet" as const })),
     ];
-    const groups = all.reduce((acc: any, c: any) => {
+
+    const groups = all.reduce<Record<number, TypedTimelineCourse[]>>((acc, c) => {
       const k = c.semester_index;
       if (!acc[k]) acc[k] = [];
       acc[k].push(c);
       return acc;
     }, {});
-    return Object.keys(groups).sort((a, b) => Number(a) - Number(b)).map(k => ({
-      semester: k,
-      courses: groups[k],
-      isCurrent: Number(k) === planData.student.current_semester
-    }));
+
+    return Object.keys(groups)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(k => ({
+        semester: k,
+        courses: groups[Number(k)],
+        isCurrent: Number(k) === planData.student.current_semester
+      }));
   }, [planData]);
 
-  if (isInitialLoading) return <div className={styles.wrapper}><Loader2 className="animate-spin" /> Đang đồng bộ lộ trình...</div>;
+  if (isInitialLoading) {
+    return (
+      <div className={styles.wrapper}>
+        <Loader2 className="animate-spin" /> Đang đồng bộ lộ trình...
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -264,7 +351,7 @@ export default function EnrollmentPlannerPage() {
             }}>
               <div style={{ fontWeight: 700, fontSize: '0.75rem', marginBottom: '0.75rem' }}>Kỳ {group.semester}</div>
               <div style={{ flex: 1, overflowY: 'auto' }}>
-                {group.courses.map((c: any, idx: number) => (
+                {group.courses.map((c, idx) => (
                   <div key={`${c.course_id}-${idx}`} style={{
                     fontSize: '0.65rem', padding: '6px 8px', borderRadius: '6px', marginBottom: '6px',
                     display: 'flex', alignItems: 'center', gap: '6px',
@@ -281,7 +368,7 @@ export default function EnrollmentPlannerPage() {
                       style={{ fontWeight: 600, cursor: 'pointer' }}
                       onClick={() => setSelectedCourse(c)}
                     >
-                      {c.course_code}
+                      {c.course_name || c.course_code}
                     </span>
                   </div>
                 ))}
@@ -297,20 +384,25 @@ export default function EnrollmentPlannerPage() {
           <div className={styles.statInfo}>
             <p className={styles.statLabel}>Tín chỉ đăng ký</p>
             <h3 className={`${styles.statValue} ${currentCredits > (data?.credit_limit?.max || 18) ? "text-red-500" : ""}`}>
-              {currentCredits} / {data?.credit_limit.max ?? baseStats?.credit_limit.max ?? "--"}
+              {currentCredits} / {data?.credit_limit?.max ?? baseStats?.credit_limit?.max ?? "--"}
             </h3>
           </div>
           <div className={`${styles.statIcon} ${styles.bgNavy}`}><BookOpen size={24} /></div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statInfo}><p className={styles.statLabel}>Tiến độ</p><h3 className={styles.statValue}>{baseStats ? `${Math.round((baseStats.graduation_track.accumulated_credits / baseStats.graduation_track.total_required_credits) * 100)}%` : "--"}</h3></div>
+          <div className={styles.statInfo}>
+            <p className={styles.statLabel}>Tiến độ</p>
+            <h3 className={styles.statValue}>
+              {baseStats ? `${Math.round((baseStats.graduation_track.accumulated_credits / baseStats.graduation_track.total_required_credits) * 100)}%` : "--"}
+            </h3>
+          </div>
           <div className={`${styles.statIcon} ${styles.bgEmerald}`}><GraduationCap size={24} /></div>
         </div>
       </section>
 
       {/* 4. Content Grid */}
       <div className={styles.contentGrid}>
-        {/* Lời khuyên bên trái */}
+        {/* Lời khuyên cố vấn */}
         <aside className={styles.sidePanel}>
           <div className={styles.panel} style={{ padding: '1.5rem' }}>
             <h4 style={{ fontWeight: 600, marginBottom: '1.25rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -324,7 +416,7 @@ export default function EnrollmentPlannerPage() {
                   <p className={styles.sectionLabel}>Lịch học dự kiến (môn đã chọn)</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {filteredTimetable.length > 0 ? (
-                      filteredTimetable.map((slot: any, idx: number) => (
+                      filteredTimetable.map((slot, idx) => (
                         <div key={idx} className={styles.timeSlot}>
                           <div style={{ fontWeight: 700 }}>{slot.course_name}</div>
                           <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
@@ -341,7 +433,6 @@ export default function EnrollmentPlannerPage() {
                   </div>
                 </div>
 
-                {/* NÚT ĐĂNG KÝ (ĐÃ LOẠI BỎ TEXT HIỂN THỊ LỖI PHÍA DƯỚI) */}
                 <button
                   className={styles.submitBtn}
                   disabled={
@@ -362,7 +453,7 @@ export default function EnrollmentPlannerPage() {
           </div>
         </aside>
 
-        {/* Danh sách môn học bên phải */}
+        {/* Danh sách môn học đề xuất */}
         <main className={styles.panel}>
           <div className={styles.panelHeader} style={{ flexDirection: 'column', gap: '1rem', alignItems: 'flex-start' }}>
             <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -381,7 +472,7 @@ export default function EnrollmentPlannerPage() {
                   onClick={() => handleModeChange(m)}
                   style={{ flex: 1, textAlign: 'center' }}
                 >
-                  {m === "normal" ? "Chế độ Chuẩn" : m === m ? "Học vượt" : "Đúng hạn"}
+                  {m === "normal" ? "Chế độ Chuẩn" : m === "fast_track" ? "Học vượt" : "Đúng hạn"}
                 </button>
               ))}
             </div>
@@ -399,7 +490,7 @@ export default function EnrollmentPlannerPage() {
 
           <div className={styles.courseList}>
             {data ? (
-              data.suggested_courses.map(course => {
+              (data.suggested_courses as SuggestedCourse[]).map(course => {
                 const isScheduled = scheduledCourseIds.has(course.course_id);
                 const unscheduledReason = getUnscheduledReason(course.course_id);
                 const isBlocked = !isScheduled;
@@ -465,7 +556,7 @@ export default function EnrollmentPlannerPage() {
                 </div>
                 <div className={styles.modalBody}>
                   <div style={{ display: 'grid', gap: '0.75rem' }}>
-                    <div><strong>Tên môn:</strong> {selectedCourse.course_name}</div>
+                    <div><strong>Tên môn:</strong> {selectedCourse.course_name || "--"}</div>
                     <div><strong>Mã môn:</strong> {selectedCourse.course_code}</div>
                     <div><strong>Tín chỉ:</strong> {selectedCourse.credits ?? "--"}</div>
                     {selectedCourse.description && (
@@ -479,12 +570,12 @@ export default function EnrollmentPlannerPage() {
         </main>
       </div>
 
-      {/* --- UI TOAST MESSAGE ĐÃ ĐỔI LÊN TRÊN GÓC TRÁI (TOP-LEFT) --- */}
+      {/* --- UI TOAST MESSAGE --- */}
       {toast && (
         <div style={{
           position: 'fixed',
-          top: '24px',          // Đổi từ bottom lên top
-          right: '24px',         // Đổi từ right sang left
+          top: '24px',
+          right: '24px',
           zIndex: 9999,
           background: toast.type === 'success' ? '#f0fdf4' : '#fef2f2',
           color: toast.type === 'success' ? '#166534' : '#991b1b',

@@ -5,13 +5,11 @@ import { useAuth } from "@/src/context/AuthContext";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
-  TrendingUp,
   AlertCircle,
-  CheckCircle2,
   UserCircle,
   Activity,
-  Award,
-  Zap
+  Zap,
+  CheckCircle2
 } from "lucide-react";
 import {
   fetchStudentClasses,
@@ -24,11 +22,11 @@ import {
   type PredictionResult,
   type StudentClass,
 } from "@/src/lib/api/ews";
-import { fetchResults, type ResultsPayload } from "@/src/lib/api/sis";
+import { fetchResults, type ResultsPayload, type ResultCourse } from "@/src/lib/api/sis";
+import { PUBLIC_API_BASE_URL } from "@/src/lib/api/config";
 
 export default function StudentEWSPage() {
   const { user } = useAuth();
-  const studentId = user?.username || "string";
 
   const [ews, setEws] = useState<EWSRisk | null>(null);
   const [gpa, setGpa] = useState<GPAReport | null>(null);
@@ -38,6 +36,12 @@ export default function StudentEWSPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user?.username || !user?.user_id) return;
+
+    setLoading(true);
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    const studentId = user.username;
+
     Promise.all([
       fetchStudentEWS(studentId).catch(() => null),
       fetchStudentGPA(studentId).catch(() => null),
@@ -45,34 +49,66 @@ export default function StudentEWSPage() {
       fetchStudentClasses().catch(() => ({ administrative_class: null, subjects: [] as StudentClass[] })),
       fetchResults().catch(() => null as ResultsPayload | null),
     ])
-      .then(([e, g, p, classPayload, results]) => {
+      .then(async ([e, g, p, classPayload, results]) => {
         setEws(e);
         setGpa(g);
         setPred(p);
         setAdminClass(classPayload?.administrative_class ?? null);
 
+        let baseSubjects = classPayload?.subjects || [];
+
+        if (baseSubjects.length === 0) {
+          try {
+            const res = await fetch(`${PUBLIC_API_BASE_URL}student/${user.user_id}/timetable`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const json = await res.json();
+            if (json.success && json.data?.courses) {
+              baseSubjects = json.data.courses.map((c: any) => ({
+                course_id: c.course_id,
+                course_code: c.course_code,
+                course_name: c.course_name,
+                credits: c.credits,
+                absence_pct: 0,
+                midterm_score: null,
+                assignment_score: null,
+                final_score: null,
+                weighted_score: null,
+              }));
+            }
+          } catch (err) {
+            console.error("Lỗi fetch lịch học:", err);
+          }
+        }
+
         const weightedByCode = new Map<string, number>();
-        const currentSemesterCourses = results?.semesters?.[0]?.courses || [];
+        const currentSemesterCourses: ResultCourse[] = results?.semesters?.[0]?.courses || [];
+        
         for (const c of currentSemesterCourses) {
           if (typeof c.weighted_score === "number") weightedByCode.set(c.course_code, c.weighted_score);
+          if (typeof c.absence_pct === "number") weightedByCode.set(`abs_${c.course_code}`, c.absence_pct);
         }
 
         setSubjects(
-          (classPayload?.subjects || []).map((s) => {
+          baseSubjects.map((s) => {
             const ws = weightedByCode.get(s.course_code);
-            return typeof ws === "number" ? { ...s, weighted_score: ws } : s;
+            const absPct = weightedByCode.get(`abs_${s.course_code}`);
+            return {
+              ...s,
+              ...(typeof ws === "number" ? { weighted_score: ws } : {}),
+              ...(typeof absPct === "number" ? { absence_pct: absPct } : {}),
+            };
           })
         );
       })
+      .catch((error) => console.error("Lỗi đồng bộ dữ liệu EWS:", error))
       .finally(() => setLoading(false));
-  }, [studentId]);
+  }, [user?.username, user?.user_id]);
 
   const riskClass = ews?.level === "danger" ? styles.riskDanger
     : ews?.level === "warning" ? styles.riskWarning
       : styles.riskSafe;
 
-  // Prefer backend-provided weighted_score to keep `/student` consistent with `/student/grades`.
-  // Fallback to a local estimate only when weighted_score is missing.
   const courseScore10 = (item: StudentClass): number | null => {
     if (typeof item.weighted_score === "number") return Number(item.weighted_score.toFixed(2));
 
@@ -91,6 +127,8 @@ export default function StudentEWSPage() {
     return null;
   };
 
+  const hasWarnings = (ews?.warnings && ews.warnings.length > 0) || (gpa?.failed_courses && gpa.failed_courses.length > 0);
+
   if (loading) return <div className={styles.statCard}>Đang nạp dữ liệu EWS...</div>;
 
   return (
@@ -102,7 +140,7 @@ export default function StudentEWSPage() {
           <p className={styles.heroSubtitle}>Hệ thống AI đã phân tích xong tình trạng học thuật của bạn.</p>
         </div>
         <div className={styles.statCard} style={{ padding: '0.5rem 1rem', borderStyle: 'dashed' }}>
-          <span className={styles.statLabel}>ID: {studentId}</span>
+          <span className={styles.statLabel}>ID: {user?.username}</span>
         </div>
       </section>
 
@@ -133,9 +171,8 @@ export default function StudentEWSPage() {
         </div>
       </div>
 
-      {/* 3. Content Grid */}
+      {/* 3. Content Grid (Main & Side) */}
       <div className={styles.contentGrid}>
-
         {/* Main Column: Classes & Subjects */}
         <div className={styles.mainPanel}>
           <div className={styles.panel}>
@@ -171,9 +208,9 @@ export default function StudentEWSPage() {
           </div>
         </div>
 
-        {/* Side Column: AI Insights & Alerts */}
+        {/* Side Column: AI Prediction Only */}
         <div className={styles.sidePanel}>
-          <div className={styles.panel}>
+          <div className={styles.panel} style={{ height: '100%', marginBottom: 0 }}>
             <div className={styles.panelHeader}>
               <h3><Zap size={18} /> AI Prediction</h3>
             </div>
@@ -192,33 +229,38 @@ export default function StudentEWSPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <h3><AlertCircle size={18} /> Cảnh báo quan trọng</h3>
-            </div>
-            <div className={styles.insightList}>
+      {/* 4. Bottom Full-Width Section: Cảnh báo quan trọng */}
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h3><AlertCircle size={18} /> Cảnh báo quan trọng</h3>
+          {hasWarnings && <span className={styles.alertBadge}>Yêu cầu chú ý</span>}
+        </div>
+        <div className={styles.alertGrid}>
+          {hasWarnings ? (
+            <>
               {ews?.warnings.map((w, i) => (
                 <div key={`warning-${i}`} className={`${styles.insightItem} ${styles.bgWarning}`}>
-                  <AlertCircle size={16} /> {w}
+                  <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} /> 
+                  <span>{w}</span>
                 </div>
               ))}
-
               {gpa?.failed_courses.map((c, i) => (
-                <div key={`failed-${i}`} className={`${styles.insightItem} ${styles.bgDanger}`}>
-                  <Activity size={16} /> F: {c.course_name}
+                <div key={`failed-${c.course_name}-${i}`} className={`${styles.insightItem} ${styles.bgDanger}`}>
+                  <Activity size={16} style={{ flexShrink: 0, marginTop: '2px' }} /> 
+                  <span>Học phần trượt (Điểm F): <strong>{c.course_name}</strong></span>
                 </div>
               ))}
-
-              {(!ews?.warnings.length && !gpa?.failed_courses.length) && (
-                <div className={`${styles.insightItem} ${styles.bgSafe}`} style={{ background: '#f0fdf4', color: '#166534' }}>
-                  <CheckCircle2 size={16} /> Mọi thứ đều ổn!
-                </div>
-              )}
+            </>
+          ) : (
+            <div className={styles.emptyAlerts}>
+              <CheckCircle2 size={24} color="#10b981" />
+              <p>Hiện tại không ghi nhận cảnh báo học vụ nào cho học kỳ này.</p>
             </div>
-          </div>
+          )}
         </div>
-
       </div>
     </div>
   );

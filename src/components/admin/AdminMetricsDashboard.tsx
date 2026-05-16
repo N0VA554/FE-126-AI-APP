@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { PUBLIC_API_BASE_URL } from "@/src/lib/api/config";
 import styles from "./index.module.css"; // Sử dụng file CSS chung phong cách cũ
 import {
   Activity,
@@ -106,8 +107,7 @@ export default function AdminMetricsDashboard() {
   const [detailError, setDetailError] = useState<string | null>(null);
   const [studentLogs, setStudentLogs] = useState<StudentLogDetail[]>([]);
 
-  // Endpoint: NEXT_PUBLIC_API_URL + path
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1/";
+  const API_BASE = PUBLIC_API_BASE_URL;
   const DASHBOARD_URL = `${API_BASE}admin/metrics/dashboard`;
   const STATS_URL = `${API_BASE}student/admin/chatbot/logs/stats`;
 

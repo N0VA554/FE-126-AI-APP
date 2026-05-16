@@ -61,7 +61,6 @@
   border-radius: 1.5rem;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-  margin-bottom: 1.5rem;
 }
 
 .panelHeader {
@@ -73,7 +72,14 @@
   background: #f8fafc;
 }
 
-.panelHeader h3 { font-weight: 700; font-size: 1rem; color: #1e293b; }
+.panelHeader h3 { 
+  font-weight: 700; 
+  font-size: 1rem; 
+  color: #1e293b; 
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 /* Subjects Grid */
 .classGrid {
@@ -90,20 +96,57 @@
   background: #fafafa;
 }
 
+.courseCode { font-size: 0.75rem; font-weight: 700; color: #64748b; }
+.courseName { font-size: 0.925rem; font-weight: 600; color: #1e293b; margin-top: 0.25rem; }
+
 /* AI Insight List */
 .insightList {
   padding: 1.25rem;
   list-style: none;
 }
 
+/* TỐI ƯU UI: Grid hiển thị Cảnh báo diện rộng dưới đáy */
+.alertGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: 0.75rem;
+  padding: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .alertGrid { grid-template-columns: 1fr; }
+}
+
 .insightItem {
   display: flex;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: 0.75rem;
-  margin-bottom: 0.5rem;
   font-size: 0.875rem;
+  line-height: 1.5;
+  align-items: flex-start;
 }
 
-.bgWarning { background: #fffbeb; color: #92400e; }
-.bgDanger { background: #fef2f2; color: #991b1b; }
+.bgWarning { background: #fffbeb; color: #92400e; border: 1px solid #fef3c7; }
+.bgDanger { background: #fef2f2; color: #991b1b; border: 1px solid #fee2e2; }
+
+.alertBadge {
+  background: #fee2e2;
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.emptyAlerts {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  color: #64748b;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}

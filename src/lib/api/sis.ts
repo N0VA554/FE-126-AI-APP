@@ -9,16 +9,24 @@ export interface ResultCourse {
   enrollment_id: number;
   semester_year: number | string;
   semester_index: number;
+
   course_id: number;
   course_code: string;
   course_name: string;
   credits: number;
+
   assignment_score: number | null;
   midterm_score: number | null;
   final_score: number | null;
+
   weighted_score: number | null;
+
+  // thêm field này
+  absence_pct?: number | null;
+
   gpa4: number | null;
   grade_letter: string | null;
+
   status: string;
   is_passed: boolean;
   retake_required: boolean;
