@@ -3,12 +3,12 @@
 import styles from "./index.module.css";
 import { useAuth } from "@/src/context/AuthContext";
 import { useEffect, useState } from "react";
-import { 
-  BookOpen, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle2, 
-  UserCircle, 
+import {
+  BookOpen,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  UserCircle,
   Activity,
   Award,
   Zap
@@ -67,9 +67,9 @@ export default function StudentEWSPage() {
       .finally(() => setLoading(false));
   }, [studentId]);
 
-  const riskClass = ews?.level === "danger" ? styles.riskDanger 
-                  : ews?.level === "warning" ? styles.riskWarning 
-                  : styles.riskSafe;
+  const riskClass = ews?.level === "danger" ? styles.riskDanger
+    : ews?.level === "warning" ? styles.riskWarning
+      : styles.riskSafe;
 
   // Prefer backend-provided weighted_score to keep `/student` consistent with `/student/grades`.
   // Fallback to a local estimate only when weighted_score is missing.
@@ -101,8 +101,8 @@ export default function StudentEWSPage() {
           <h2 className={styles.heroTitle}>Chào {user?.full_name?.split(" ").pop()},</h2>
           <p className={styles.heroSubtitle}>Hệ thống AI đã phân tích xong tình trạng học thuật của bạn.</p>
         </div>
-        <div className={styles.statCard} style={{padding: '0.5rem 1rem', borderStyle: 'dashed'}}>
-           <span className={styles.statLabel}>ID: {studentId}</span>
+        <div className={styles.statCard} style={{ padding: '0.5rem 1rem', borderStyle: 'dashed' }}>
+          <span className={styles.statLabel}>ID: {studentId}</span>
         </div>
       </section>
 
@@ -110,7 +110,7 @@ export default function StudentEWSPage() {
       <div className={styles.statsRow}>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>GPA Tích lũy</span>
-          <div className={styles.statValue} style={{color: '#d4af37'}}>{gpa?.cumulative_gpa4?.toFixed(2)}</div>
+          <div className={styles.statValue} style={{ color: '#d4af37' }}>{gpa?.cumulative_gpa4?.toFixed(2)}</div>
           <span className={styles.statFoot}>{gpa?.gpa4_classification}</span>
         </div>
 
@@ -122,7 +122,7 @@ export default function StudentEWSPage() {
 
         <div className={`${styles.statCard} ${riskClass}`}>
           <span className={styles.statLabel}>Rủi ro EWS</span>
-          <div className={styles.statValue}>{ews?.risk_score} <span style={{fontSize: '1rem'}}>/100</span></div>
+          <div className={styles.statValue}>{ews?.risk_score} <span style={{ fontSize: '1rem' }}>/100</span></div>
           <span className={styles.statFoot}>{ews?.level_label}</span>
         </div>
 
@@ -135,15 +135,15 @@ export default function StudentEWSPage() {
 
       {/* 3. Content Grid */}
       <div className={styles.contentGrid}>
-        
+
         {/* Main Column: Classes & Subjects */}
         <div className={styles.mainPanel}>
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
-              <h3><UserCircle size={18}  /> Lớp hành chính</h3>
+              <h3><UserCircle size={18} /> Lớp hành chính</h3>
               <span className={styles.statLabel}>{adminClass?.class_name}</span>
             </div>
-            <div style={{padding: '1.5rem'}}>
+            <div style={{ padding: '1.5rem' }}>
               <strong>{adminClass?.class_name || "Chưa phân lớp"}</strong>
               <p className={styles.heroSubtitle}>Khóa {adminClass?.cohort_year} • Học kỳ {adminClass?.current_semester}</p>
             </div>
@@ -151,14 +151,14 @@ export default function StudentEWSPage() {
 
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
-              <h3><BookOpen size={18}  /> Môn học kỳ này</h3>
+              <h3><BookOpen size={18} /> Môn học kỳ này</h3>
             </div>
             <div className={styles.classGrid}>
               {subjects.map((item, idx) => (
                 <div key={`subject-${item.course_id ?? idx}-${idx}`} className={styles.classCard}>
                   <p className={styles.courseCode}>{item.course_code}</p>
                   <p className={styles.courseName}>{item.course_name}</p>
-                  <div className={styles.statFoot} style={{display: 'flex', justifyContent: 'space-between', marginTop: '8px'}}>
+                  <div className={styles.statFoot} style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
                     {(() => {
                       const score = courseScore10(item);
                       return <span>Điểm: {score !== null ? score.toFixed(2) : "—"}</span>;
@@ -175,18 +175,18 @@ export default function StudentEWSPage() {
         <div className={styles.sidePanel}>
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
-              <h3><Zap size={18}  /> AI Prediction</h3>
+              <h3><Zap size={18} /> AI Prediction</h3>
             </div>
             <div className={styles.insightList}>
-              <div className={styles.infoBox} style={{padding: '1rem', background: '#f8fafc', borderRadius: '1rem'}}>
+              <div className={styles.infoBox} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '1rem' }}>
                 <p className={styles.statLabel}>Dự báo GPA kỳ tới</p>
-                <div className={styles.statValue} style={{fontSize: '1.25rem'}}>{pred?.predicted_gpa4?.toFixed(2)}</div>
+                <div className={styles.statValue} style={{ fontSize: '1.25rem' }}>{pred?.predicted_gpa4?.toFixed(2)}</div>
                 <p className={styles.statFoot}>Xu hướng: {pred?.trend_label}</p>
               </div>
-              
-              <div style={{marginTop: '1.5rem'}}>
+
+              <div style={{ marginTop: '1.5rem' }}>
                 <p className={styles.statLabel}>Rủi ro thôi học</p>
-                <p style={{fontWeight: 700, color: pred?.dropout_risk_label === "Thấp" ? '#10b981' : '#ef4444'}}>
+                <p style={{ fontWeight: 700, color: pred?.dropout_risk_label === "Thấp" ? '#10b981' : '#ef4444' }}>
                   {pred?.dropout_risk_label}
                 </p>
               </div>
@@ -195,7 +195,7 @@ export default function StudentEWSPage() {
 
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
-              <h3><AlertCircle size={18}  /> Cảnh báo quan trọng</h3>
+              <h3><AlertCircle size={18} /> Cảnh báo quan trọng</h3>
             </div>
             <div className={styles.insightList}>
               {ews?.warnings.map((w, i) => (
@@ -203,13 +203,15 @@ export default function StudentEWSPage() {
                   <AlertCircle size={16} /> {w}
                 </div>
               ))}
+
               {gpa?.failed_courses.map((c, i) => (
-                <div key={`failed-${c.course_id ?? i}`} className={`${styles.insightItem} ${styles.bgDanger}`}>
+                <div key={`failed-${i}`} className={`${styles.insightItem} ${styles.bgDanger}`}>
                   <Activity size={16} /> F: {c.course_name}
                 </div>
               ))}
+
               {(!ews?.warnings.length && !gpa?.failed_courses.length) && (
-                <div className={`${styles.insightItem} ${styles.bgSafe}`} style={{background: '#f0fdf4', color: '#166534'}}>
+                <div className={`${styles.insightItem} ${styles.bgSafe}`} style={{ background: '#f0fdf4', color: '#166534' }}>
                   <CheckCircle2 size={16} /> Mọi thứ đều ổn!
                 </div>
               )}
