@@ -44,20 +44,37 @@ export default function LecturerPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetchDashboardSummary(),
-      fetchAlerts("all"),
-      fetchAdvisorDashboard(),
-      fetchAdvisorClasses(),
-    ])
-      .then(([summaryData, alertData, dashboardData, classData]) => {
-        setSummary(summaryData);
-        setAlerts(alertData);
-        setAdvisor(dashboardData);
-        setClasses(classData);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  Promise.all([
+    fetchDashboardSummary(),
+    fetchAlerts("all"),
+    fetchAdvisorDashboard(),
+    fetchAdvisorClasses(),
+  ])
+    .then(([summaryData, alertData, dashboardData, classData]) => {
+      setSummary(summaryData);
+      setAlerts(alertData);
+      setAdvisor(dashboardData);
+
+      // ÉP KIỂU VỀ any: Để TypeScript cho phép kiểm tra các thuộc tính động của object API
+      const rawClassData = classData as any;
+      let extractedClasses: AdvisorClass[] = [];
+
+      if (Array.isArray(rawClassData)) {
+        extractedClasses = rawClassData;
+      } else if (rawClassData?.data?.classes) {
+        extractedClasses = rawClassData.data.classes;
+      } else if (rawClassData?.classes) {
+        extractedClasses = rawClassData.classes;
+      }
+
+      setClasses(extractedClasses);
+    })
+    .catch((err) => {
+      console.error("Lỗi khi nạp dữ liệu cố vấn:", err);
+      setClasses([]); 
+    })
+    .finally(() => setLoading(false));
+}, []);
 
   useEffect(() => {
     if (!selectedClassId) return;
