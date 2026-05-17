@@ -10,52 +10,253 @@
 .heroTitle { font-size: 1.6rem; font-weight: 700; color: #0b1a2b; letter-spacing: -0.5px; }
 .heroSubtitle { margin-top: 0.35rem; color: rgba(11, 26, 43, 0.65); font-size: 0.95rem; }
 .heroRight { text-align: right; }
-
-/* Dashboard Cards */
-.statsGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; }
-.statCard { background: white; padding: 1.5rem; border-radius: 20px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03); border: 1px solid #eef1f7; position: relative; overflow: hidden; }
-.statCard::before { content: ""; position: absolute; inset: 0; background: radial-gradient(1000px 120px at 10% 0%, rgba(0, 51, 102, 0.08), transparent 60%); pointer-events: none; }
-.statCardRed::before { background: radial-gradient(1000px 120px at 10% 0%, rgba(255, 77, 79, 0.14), transparent 60%); }
-.statCardGold::before { background: radial-gradient(1000px 120px at 10% 0%, rgba(197, 162, 93, 0.18), transparent 60%); }
-.statCardGreen::before { background: radial-gradient(1000px 120px at 10% 0%, rgba(63, 180, 109, 0.16), transparent 60%); }
-.statLabel { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; position: relative; }
-.statValue { font-size: 2.2rem; font-weight: 700; color: #0b1a2b; margin-top: 0.5rem; position: relative; }
-.statFoot { margin-top: 0.35rem; font-size: 0.85rem; color: rgba(11, 26, 43, 0.55); position: relative; display: flex; align-items: center; gap: 4px; }
+.refreshHint { font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem; }
 
 /* Panels */
-.insightsGrid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.5rem; }
 .panel { background: white; border-radius: 24px; border: 1px solid #eef1f7; padding: 1.5rem; }
-.panelHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-.panelHeader h3 { font-size: 1rem; font-weight: 700; }
+.panelHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; }
+.panelHeader h3 { font-size: 1rem; font-weight: 700; color: #0b1a2b; }
+.panelTag { font-size: 0.75rem; background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 12px; font-weight: 600; }
 
 /* Tables */
 .tableWrapper { background: white; border-radius: 24px; overflow: hidden; border: 1px solid #eef1f7; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+.tableHeader { padding: 1rem 1.5rem; background: #fafcff; border-bottom: 1px solid #eef1f7; display: flex; justify-content: flex-end; }
 .table { width: 100%; border-collapse: collapse; }
-.table th { padding: 1rem 1.5rem; text-align: left; font-size: 0.75rem; color: #94a3b8; background: #fafcff; }
-.table td { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+.table th { padding: 1rem 1.5rem; text-align: left; font-size: 0.75rem; color: #94a3b8; background: #fafcff; text-transform: uppercase; font-weight: 700; }
+.table td { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #334155; }
 
 /* Buttons */
 .primaryBtn, .secondaryBtn, .actionBtnGhost { 
   display: flex; align-items: center; gap: 8px; border-radius: 12px; 
-  padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+  padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s; border: none;
 }
-.primaryBtn { background: #003366; color: white; border: none; }
-.secondaryBtn { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; margin: 0.6rem 1rem; }
+.primaryBtn { background: #003366; color: white; }
+.primaryBtn:hover { background: #002244; }
+.secondaryBtn { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; }
+.secondaryBtn:hover { background: #f1f5f9; }
 .actionBtnGhost { border: 1px solid #e2e8f0; background: white; color: #64748b; }
-.primaryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* Modal */
-.modalBackdrop { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); }
-.modalCard { width: min(850px, 95vw); max-height: 90vh; background: white; border-radius: 24px; padding: 2rem; overflow-y: auto; }
+.actionBtnGhost:hover { border-color: #003366; color: #003366; }
 
 /* Data Visualization */
 .docGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
-.docCard { border: 1px solid #f1f5f9; padding: 1.25rem; border-radius: 20px; transition: 0.2s; position: relative; }
+.docCard { border: 1px solid #f1f5f9; padding: 1.25rem; border-radius: 20px; transition: 0.2s; background: white; }
 .docCard:hover { border-color: #003366; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-.chunkContainer { display: flex; flex-direction: column; gap: 12px; margin: 1rem 0; }
+.chunkContainer { display: flex; flex-direction: column; gap: 12px; margin: 1rem 0; max-height: 50vh; overflow-y: auto; }
 .chunkItem { background: #f8fafc; border: 1px solid #f1f5f9; padding: 1rem; border-radius: 12px; }
 .chunkRef { font-size: 0.7rem; font-weight: 600; background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; }
+.chunkText { font-size: 0.85rem; color: #334155; line-height: 1.5; margin-top: 0.5rem; }
 
 /* Badges */
-.badgeRed { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
-.badgeGreen { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+.badgeRed { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; }
+.badgeGreen { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; }
+
+/* ==========================================================================
+   TỐI ƯU GIAO DIỆN PHẦN MÔ ĐUN FORM / MODAL MỚI CỦA BẠN
+   ========================================================================== */
+.modalBackdrop { 
+  position: fixed; 
+  inset: 0; 
+  z-index: 100; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: rgba(15, 23, 42, 0.35); 
+  backdrop-filter: blur(6px); 
+}
+
+.modalCard { 
+  width: min(850px, 95vw); 
+  max-height: 90vh; 
+  background: white; 
+  border-radius: 24px; 
+  padding: 1.75rem; 
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.modalHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modalHeaderTitle h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0b1a2b;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.closeBtn:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .formRow {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+}
+
+.formLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.9rem;
+  color: #334155;
+  outline: none;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.formInput:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.08);
+}
+
+/* Custom vùng tải file */
+.fileUploadZone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 0.5rem;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.fileUploadZone:hover {
+  border-color: #003366;
+}
+
+.fileInputRaw {
+  width: 100%;
+  font-size: 0.85rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.fileInputRaw::-webkit-file-upload-button {
+  background: #003366;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.fileInputRaw::-webkit-file-upload-button:hover {
+  background: #002244;
+}
+
+/* Khối thông báo lỗi/thành công */
+.statusMessage {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Các nút điều hướng dưới đáy Form */
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.cancelBtn {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancelBtn:hover {
+  background: #e2e8f0;
+}
+
+.submitFormBtn {
+  background: #003366;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+
+.submitFormBtn:hover:not(:disabled) {
+  background: #002244;
+}
+
+.submitFormBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -84,6 +84,7 @@ export default function AdminDashboardPage() {
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsUploading(true);
+    setAdminError(null);
     const formData = new FormData(e.currentTarget);
     try {
       const res = await uploadRegulation(formData);
@@ -105,7 +106,6 @@ export default function AdminDashboardPage() {
     } catch (err) { console.error(err); }
   };
 
-  // --- Memos (Calculation Logic) ---
   const stats = useMemo(() => {
     const total = report?.count ?? DUMMY_SUMMARY.total_students;
     if (!report?.students) return { ...DUMMY_SUMMARY, total_students: total };
@@ -145,30 +145,6 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* Stats Cards */}
-      {/* <section className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <p className={styles.statLabel}>Tổng sinh viên</p>
-          <p className={styles.statValue}>{stats.total_students.toLocaleString()}</p>
-          <div className={styles.statFoot}><Users size={14}/> Toàn trường</div>
-        </div>
-        <div className={`${styles.statCard} ${styles.statCardRed}`}>
-          <p className={styles.statLabel}>Nguy cơ cao</p>
-          <p className={styles.statValue}>{stats.danger_students}</p>
-          <div className={styles.statFoot}>{stats.danger_pct}% Danger</div>
-        </div>
-        <div className={`${styles.statCard} ${styles.statCardGold}`}>
-          <p className={styles.statLabel}>Cảnh báo</p>
-          <p className={styles.statValue}>{stats.warning_students}</p>
-          <div className={styles.statFoot}>{stats.warning_pct}% Warning</div>
-        </div>
-        <div className={`${styles.statCard} ${styles.statCardGreen}`}>
-          <p className={styles.statLabel}>Độ ổn định</p>
-          <p className={styles.statValue}>{stats.system_health}</p>
-          <div className={styles.statFoot}><TrendingUp size={14}/> Sức khỏe AI</div>
-        </div>
-      </section> */}
-
       {/* Knowledge Base */}
       <section className={styles.panel}>
         <div className={styles.panelHeader}>
@@ -199,7 +175,6 @@ export default function AdminDashboardPage() {
       {/* Intervention Table */}
       <div className={styles.tableWrapper}>
         <div className={styles.tableHeader}>
-          {/* <h3 className={styles.tableTitle}>Hoạt động can thiệp</h3> */}
           <button type="button" className={styles.secondaryBtn} onClick={handleTrigger} disabled={isTriggering}>
             {isTriggering ? <Loader2 className="animate-spin" size={16}/> : <Zap size={16}/>} Chạy Alert mới
           </button>
@@ -222,42 +197,59 @@ export default function AdminDashboardPage() {
         </table>
       </div>
 
-      {/* --- MODAL UPLOAD --- */}
+      {/* --- TỐI ƯU UI: MODAL UPLOAD QUY CHẾ --- */}
       {showUploadModal && (
         <div className={styles.modalBackdrop}>
-          <div className={styles.modalCard} style={{maxWidth: 500}}>
-            <div className={styles.panelHeader}>
-              <h3 className="text-xl">Thêm quy chế mới</h3>
-              <button type="button" onClick={() => setShowUploadModal(false)}><X/></button>
-            </div>
-            <form onSubmit={handleUpload}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Tiêu đề văn bản *</label>
-                <input name="title" required className={styles.formInput} placeholder="VD: Quy định Đào tạo 2026"/>
+          <div className={styles.modalCard} style={{ maxWidth: 540 }}>
+            <div className={styles.modalHeader}>
+              <div className={styles.modalHeaderTitle}>
+                <UploadCloud size={20} className="text-blue-700" />
+                <h3>Thêm quy chế hệ thống mới</h3>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <button type="button" className={styles.closeBtn} onClick={() => setShowUploadModal(false)}>
+                <X size={18}/>
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpload} className={styles.modalForm}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Tiêu đề văn bản quy chế *</label>
+                <input name="title" required className={styles.formInput} placeholder="Ví dụ: Quy chế đào tạo đại học chính quy 2026"/>
+              </div>
+
+              <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Số hiệu</label>
-                  <input name="doc_code" className={styles.formInput} placeholder="VD: 768/QĐ"/>
+                  <label className={styles.formLabel}>Số hiệu văn bản</label>
+                  <input name="doc_code" className={styles.formInput} placeholder="Ví dụ: 1024/QĐ-VINUNI"/>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Ngày hiệu lực</label>
+                  <label className={styles.formLabel}>Ngày bắt đầu hiệu lực</label>
                   <input name="effective_date" type="date" className={styles.formInput}/>
                 </div>
               </div>
+
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Tệp văn bản (PDF/MD) *</label>
-                <input type="file" name="file" accept=".pdf,.md" required className={styles.formInput}/>
+                <label className={styles.formLabel}>Tệp tin quy chế cấu trúc (Chấp nhận .pdf, .md) *</label>
+                <div className={styles.fileUploadZone}>
+                  <input type="file" name="file" accept=".pdf,.md" required className={styles.fileInputRaw}/>
+                </div>
               </div>
+              
               <input type="hidden" name="save_db" value="true" />
               
-              {uploadSuccess && <div className={styles.badgeGreen + " mb-4 inline-block w-full text-center"}>{uploadSuccess}</div>}
-              {adminError && <div className={styles.badgeRed + " mb-4 inline-block w-full text-center"}><AlertCircle size={14} className="inline mr-1"/> {adminError}</div>}
+              {/* Thông báo trạng thái */}
+              {uploadSuccess && <div className={`${styles.statusMessage} ${styles.badgeGreen}`}>{uploadSuccess}</div>}
+              {adminError && (
+                <div className={`${styles.statusMessage} ${styles.badgeRed}`}>
+                  <AlertCircle size={15} />
+                  <span>{adminError}</span>
+                </div>
+              )}
 
               <div className={styles.modalActions}>
-                <button type="button" className={styles.secondaryBtn} onClick={() => setShowUploadModal(false)}>Hủy</button>
-                <button type="submit" className={styles.primaryBtn} disabled={isUploading}>
-                  {isUploading ? <Loader2 className="animate-spin"/> : "Xử lý văn bản"}
+                <button type="button" className={styles.cancelBtn} onClick={() => setShowUploadModal(false)}>Hủy bỏ</button>
+                <button type="submit" className={styles.submitFormBtn} disabled={isUploading}>
+                  {isUploading ? <Loader2 className="animate-spin" size={16}/> : "Xử lý & Phân tách Chunks"}
                 </button>
               </div>
             </form>

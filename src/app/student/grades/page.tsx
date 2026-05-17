@@ -18,14 +18,11 @@ export default function GradesPage() {
   const [data, setData] = useState<ResultsPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  // State quản lý tab kỳ học đang chọn (mặc định là kỳ đầu tiên index = 0)
   const [selectedSemIdx, setSelectedSemIdx] = useState<number>(0);
 
   useEffect(() => {
     fetchResults()
       .then((res) => {
-        // Nếu API trả về bọc trong object { success, data }, hãy dùng res.data
-        // Ở đây map theo cấu trúc dữ liệu ResultsPayload hiện tại của bạn
         setData(res);
       })
       .catch((err) => console.error("Lỗi fetch điểm:", err))
@@ -42,13 +39,11 @@ export default function GradesPage() {
     }
   };
 
-  // Xác định kỳ học hiện tại dựa trên Tab được chọn
   const currentSemester = useMemo(() => {
     if (!data?.semesters || data.semesters.length === 0) return null;
     return data.semesters[selectedSemIdx] || data.semesters[0];
   }, [data, selectedSemIdx]);
 
-  // Bộ lọc tìm kiếm môn học tối ưu theo Tab hiện tại
   const filteredCourses = useMemo(() => {
     if (!currentSemester?.courses) return [];
     return currentSemester.courses.filter(c =>
@@ -78,9 +73,6 @@ export default function GradesPage() {
             {data.student.name} · {data.student.student_id} · {data.student.major}
           </p>
         </div>
-        {/* <button onClick={handleTranscript} className={styles.printBtn}>
-          <FileText size={18} /> In bảng điểm
-        </button> */}
       </div>
 
       {/* Header Stats */}
@@ -116,7 +108,7 @@ export default function GradesPage() {
             className={`${styles.tabItem} ${selectedSemIdx === idx ? styles.tabActive : ""}`}
             onClick={() => {
               setSelectedSemIdx(idx);
-              setSearchTerm(""); // Reset tìm kiếm khi chuyển tab
+              setSearchTerm("");
             }}
           >
             Năm {sem.semester_year}
@@ -168,21 +160,35 @@ export default function GradesPage() {
               </thead>
               <tbody>
                 {filteredCourses.length > 0 ? (
-                  filteredCourses.map((course) => (
-                    <tr key={course.enrollment_id}>
-                      <td className={styles.codeCell}>{course.course_code}</td>
-                      <td className={styles.nameCell}>{course.course_name}</td>
-                      <td>{course.credits}</td>
-                      <td>{typeof course.weighted_score === "number" ? course.weighted_score.toFixed(2) : "—"}</td>
-                      <td className={styles.boldCell}>{course.gpa4 ?? "—"}</td>
-                      <td><span className={styles.gradeBadge}>{course.grade_letter}</span></td>
-                      <td>
-                        <span className={course.retake_required ? styles.statusRed : styles.statusGreen}>
-                          {course.retake_required ? "Học lại" : "Đạt"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
+                  filteredCourses.map((course) => {
+                    // Kiểm tra xem môn học có phải đang học (chưa có điểm chính thức) không
+                    const isEnrolled = course.status === "enrolled" || course.final_score === null;
+
+                    return (
+                      <tr key={course.enrollment_id}>
+                        <td className={styles.codeCell}>{course.course_code}</td>
+                        <td className={styles.nameCell}>{course.course_name}</td>
+                        <td>{course.credits}</td>
+                        {/* Nếu đang học thì hiển thị gạch ngang thanh lịch thay vì điểm lỗi hệ thống */}
+                        <td>{!isEnrolled && typeof course.weighted_score === "number" ? course.weighted_score.toFixed(2) : "—"}</td>
+                        <td className={styles.boldCell}>{!isEnrolled ? (course.gpa4 ?? "—") : "—"}</td>
+                        <td>
+                          <span className={isEnrolled ? "" : styles.gradeBadge}>
+                            {!isEnrolled ? course.grade_letter : "—"}
+                          </span>
+                        </td>
+                        <td>
+                          {isEnrolled ? (
+                            <span className={styles.statusBlue}>Đang học</span>
+                          ) : (
+                            <span className={course.retake_required ? styles.statusRed : styles.statusGreen}>
+                              {course.retake_required ? "Học lại" : "Đạt"}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td colSpan={7} style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
