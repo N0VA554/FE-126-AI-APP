@@ -2,9 +2,9 @@
 
 import styles from "./index.module.css";
 import { useEffect, useMemo, useState } from "react";
-import { 
-  Users, AlertCircle, Zap, ShieldCheck, 
-  Send, ChevronDown, ChevronUp, Loader2, 
+import {
+  Users, AlertCircle, Zap, ShieldCheck,
+  Send, ChevronDown, ChevronUp, Loader2,
   BarChart3, Mail, CheckCircle2, AlertTriangle,
   LayoutDashboard, FileText, History
 } from "lucide-react";
@@ -33,10 +33,10 @@ export default function LecturerPage() {
   const [classes, setClasses] = useState<AdvisorClass[]>([]);
   const [selectedClassId, setSelectedClassId] = useState("");
   const [classStudents, setClassStudents] = useState<ClassStudent[]>([]);
-  
+
   // States cho tính năng mở rộng dòng (Dropdown chi tiết)
   const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
-  
+
   const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [batchResult, setBatchResult] = useState<BatchRecommendResult | null>(null);
@@ -44,37 +44,37 @@ export default function LecturerPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  Promise.all([
-    fetchDashboardSummary(),
-    fetchAlerts("all"),
-    fetchAdvisorDashboard(),
-    fetchAdvisorClasses(),
-  ])
-    .then(([summaryData, alertData, dashboardData, classData]) => {
-      setSummary(summaryData);
-      setAlerts(alertData);
-      setAdvisor(dashboardData);
+    Promise.all([
+      fetchDashboardSummary(),
+      fetchAlerts("all"),
+      fetchAdvisorDashboard(),
+      fetchAdvisorClasses(),
+    ])
+      .then(([summaryData, alertData, dashboardData, classData]) => {
+        setSummary(summaryData);
+        setAlerts(alertData);
+        setAdvisor(dashboardData);
 
-      // ÉP KIỂU VỀ any: Để TypeScript cho phép kiểm tra các thuộc tính động của object API
-      const rawClassData = classData as any;
-      let extractedClasses: AdvisorClass[] = [];
+        // ÉP KIỂU VỀ any: Để TypeScript cho phép kiểm tra các thuộc tính động của object API
+        const rawClassData = classData as any;
+        let extractedClasses: AdvisorClass[] = [];
 
-      if (Array.isArray(rawClassData)) {
-        extractedClasses = rawClassData;
-      } else if (rawClassData?.data?.classes) {
-        extractedClasses = rawClassData.data.classes;
-      } else if (rawClassData?.classes) {
-        extractedClasses = rawClassData.classes;
-      }
+        if (Array.isArray(rawClassData)) {
+          extractedClasses = rawClassData;
+        } else if (rawClassData?.data?.classes) {
+          extractedClasses = rawClassData.data.classes;
+        } else if (rawClassData?.classes) {
+          extractedClasses = rawClassData.classes;
+        }
 
-      setClasses(extractedClasses);
-    })
-    .catch((err) => {
-      console.error("Lỗi khi nạp dữ liệu cố vấn:", err);
-      setClasses([]); 
-    })
-    .finally(() => setLoading(false));
-}, []);
+        setClasses(extractedClasses);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi nạp dữ liệu cố vấn:", err);
+        setClasses([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     if (!selectedClassId) return;
@@ -93,7 +93,7 @@ export default function LecturerPage() {
   const selectedClass = classes.find((c) => c.class_id === selectedClassId) || null;
   const displayedStudents = selectedClassId ? classStudents : alerts;
   const atRiskInSelectedClass = classStudents.filter((s) => ["warning", "danger"].includes(s.level));
-  
+
   const stat = summary ?? {
     total: 0, danger: 0, warning: 0, safe: 0,
     danger_pct: 0, warning_pct: 0, safe_pct: 0, data_source: ""
@@ -146,7 +146,7 @@ export default function LecturerPage() {
           </p>
         </div>
         <div className={styles.heroRight}>
-          <div className={styles.weekPill}><History size={14} style={{marginRight: 6}}/> Nhật ký can thiệp</div>
+          <div className={styles.weekPill}><History size={14} style={{ marginRight: 6 }} /> Nhật ký can thiệp</div>
         </div>
       </section>
 
@@ -185,7 +185,10 @@ export default function LecturerPage() {
             {stat.danger > 0 && (
               <li><span className={styles.dotRed} /> <strong>{stat.danger} sinh viên</strong> mức Đỏ chưa được gửi Recommendation kỳ này.</li>
             )}
-            <li><span className={styles.dotGold} /> SLA phản hồi Tier 3 hiện tại: <strong>{advisor?.governance.response_time_sla_by_tier.tier_3_critical.sla_hours}h</strong>.</li>
+            <li>
+              <span className={styles.dotGold} />
+              SLA phản hồi Tier 3 hiện tại: <strong>{advisor?.governance?.response_time_sla_by_tier?.tier_3_critical?.sla_hours ?? "—"}h</strong>.
+            </li>
             <li><span className={styles.dotBlue} /> <strong>{advisor?.student_feedback_action_queue.length} phản hồi</strong> mới từ sinh viên cần xử lý.</li>
           </ul>
         </div>
@@ -217,13 +220,13 @@ export default function LecturerPage() {
         <div>
           <h3 className={styles.tableTitle}>Bộ lọc Cohort / Lớp hành chính</h3>
           <p className={styles.tableSubtitle}>
-            {selectedClass 
-              ? `${selectedClass.class_name}: ${selectedClass.student_count} sinh viên, ${selectedClass.at_risk_count} cần hỗ trợ` 
+            {selectedClass
+              ? `${selectedClass.class_name}: ${selectedClass.student_count} sinh viên, ${selectedClass.at_risk_count} cần hỗ trợ`
               : "Chọn một lớp để thực hiện can thiệp hàng loạt."}
           </p>
         </div>
         <div className={styles.classControls}>
-          <select 
+          <select
             className={styles.classSelect}
             value={selectedClassId}
             onChange={(e) => handleClassChange(e.target.value)}
@@ -235,12 +238,12 @@ export default function LecturerPage() {
               </option>
             ))}
           </select>
-          <button 
+          <button
             className={styles.primaryBtn}
             disabled={!selectedClassId || atRiskInSelectedClass.length === 0}
             onClick={() => setShowBatchModal(true)}
           >
-            <Send size={16} style={{marginRight: 8}}/> Gửi Recommendation Batch
+            <Send size={16} style={{ marginRight: 8 }} /> Gửi Recommendation Batch
           </button>
         </div>
       </section>
@@ -263,7 +266,7 @@ export default function LecturerPage() {
               <th>EWS Score</th>
               <th>Vắng KP</th>
               <th>Điểm TB</th>
-              <th style={{textAlign: 'right'}}>Thao tác</th>
+              <th style={{ textAlign: 'right' }}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -282,37 +285,37 @@ export default function LecturerPage() {
                   </td>
                   <td>
                     <span className={
-                      student.level === "danger" ? styles.badgeRed : 
-                      student.level === "warning" ? styles.badgeGold : styles.badgeGreen
+                      student.level === "danger" ? styles.badgeRed :
+                        student.level === "warning" ? styles.badgeGold : styles.badgeGreen
                     }>
                       {student.risk_score}
                     </span>
                   </td>
                   <td className={styles.boldCell}>{student.absence_pct.toFixed(1)}%</td>
                   <td>{student.avg_weighted_score?.toFixed(2) ?? "—"}</td>
-                  <td style={{textAlign: 'right'}}>
-                    <div className={styles.rowActions} style={{justifyContent: 'flex-end'}}>
-                      <button 
-                        className={styles.actionBtn} 
+                  <td style={{ textAlign: 'right' }}>
+                    <div className={styles.rowActions} style={{ justifyContent: 'flex-end' }}>
+                      <button
+                        className={styles.actionBtn}
                         onClick={() => toggleStudentDetail(student.student_id)}
                       >
-                        {expandedStudentId === student.student_id ? <ChevronUp size={16}/> : "Xem"}
+                        {expandedStudentId === student.student_id ? <ChevronUp size={16} /> : "Xem"}
                       </button>
                       {/* <button className={styles.actionBtnGhost}><Mail size={16}/></button> */}
                     </div>
                   </td>
                 </tr>
-                
+
                 {/* ROW EXPANSION: CHI TIẾT SINH VIÊN */}
                 {expandedStudentId === student.student_id && (
                   <tr>
                     <td colSpan={6} style={{ padding: 0, borderBottom: '1px solid #eef1f7' }}>
-                      <div style={{ 
-                        padding: '1.5rem 2rem', 
-                        background: '#f8fafc', 
-                        display: 'grid', 
-                        gridTemplateColumns: '1fr 1fr', 
-                        gap: '2rem' 
+                      <div style={{
+                        padding: '1.5rem 2rem',
+                        background: '#f8fafc',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '2rem'
                       }}>
                         <div>
                           <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#888', textTransform: 'uppercase', marginBottom: 12 }}>
@@ -387,7 +390,7 @@ export default function LecturerPage() {
             <div className={styles.modalActions}>
               <button className={styles.secondaryBtn} onClick={() => setShowBatchModal(false)}>Hủy bỏ</button>
               <button className={styles.primaryBtn} disabled={batchLoading} onClick={handleBatchSend}>
-                {batchLoading ? <Loader2 className="animate-spin" size={16}/> : "Gửi Recommendation"}
+                {batchLoading ? <Loader2 className="animate-spin" size={16} /> : "Gửi Recommendation"}
               </button>
             </div>
           </div>
